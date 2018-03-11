@@ -2,16 +2,17 @@
   <div class="content">
     <h1>资料收集页</h1>
     <div class="form">
-      <div>
+      <div class="list">
         <p>请填写本科院校<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(collageName) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <input type="text" v-model="collageName">
         </div>
+        <p v-if="isEmpty(collageName) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写本科院校</p>
       </div>
-      <div>
+      <div class="list">
         <p>选择专业<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(major) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-graduation-cap"></span>
           <select name="" id="" v-model="major">
             <option value="cityplanning">城市规划</option>
@@ -19,10 +20,11 @@
             <option value="landscape">风景园林</option>
           </select>
         </div>
+        <p v-if="isEmpty(major) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择专业</p>
       </div>
-      <div>
+      <div class="list">
         <p>选择省份<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(province) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-map-signs"></span>
           <select name="" id="" v-model="province" @change="onProvinceChange">
             <option value="北京">北京市</option>
@@ -61,10 +63,11 @@
             <option value="西藏自治区">西藏自治区</option>
           </select>
         </div>
+        <p v-if="isEmpty(province) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择省份</p>
       </div>
-      <div>
+      <div class="list">
         <p>选择报考学校<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(chosedSchool) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <select name="" id="" v-model="chosedSchool">
             <option v-for="sc in school" :value="sc" v-bind:key="sc.id">
@@ -72,39 +75,64 @@
             </option>
           </select>
         </div>
+        <p v-if="isEmpty(chosedSchool) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择报考学校</p>
       </div>
-      <div>
+      <div class="list">
         <p v-if="chosedSchool.majorcode1">{{chosedSchool.majorcode1}}</p>
         <p v-if="chosedSchool.majorcode2">{{chosedSchool.majorcode2}}</p>
         <p v-if="chosedSchool.majorcode3">{{chosedSchool.majorcode3}}</p>
       </div>
-      <div>
+      <div class="list">
         <p>请填写姓名<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(name) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-child"></span>
-          <input name="" id="" />
+          <input name="" id="" v-model="name"/>
         </div>
+        <p v-if="isEmpty(name) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写姓名</p>
       </div>
-      <div>
+      <div class="list">
         <p>请填写邮箱<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(email) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-envelope-o fa-fw"></span>
-          <input type="email" name="" id="">
+          <input type="email" name="" id="" v-model="email">
         </div>
+        <p v-if="isEmpty(email) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写邮箱</p>
       </div>
-      <div>
+      <div class="list">
         <p>请填写住址<span class="red_star">*</span></p>
         <v-distpicker @selected="onSelected"></v-distpicker>
-        <div class="enter">
+        <div :class="[!isEmpty(address) || !hasClickSub ? 'enter address' : 'enter address disabled']">
           <span class="fa fa-address-book-o"></span>
-          <input type="text">
+          <input type="text" v-model="address">
         </div>
+        <p v-if="isEmpty(address) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写邮箱</p>
       </div>
-      <div>
+      <div class="list">
         <p>请填写手机号<span class="red_star">*</span></p>
-        <div class="enter">
+        <div :class="[!isEmpty(tel) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-mobile"></span>
-          <input type="number" name="" id="">
+          <input type="number" name="" id="" class="phone" v-model="tel">
+          <span class="sendMsg" @click="onMsgSend">发送验证码</span>
+        </div>
+        <p v-if="isEmpty(tel) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写手机号</p>
+      </div>
+      <div class="list">
+        <p>请填写验证码<span class="red_star">*</span></p>
+        <div :class="[!isEmpty(valid) || !hasClickSub ? 'enter' : 'enter disabled']">
+          <span class="fa fa-mobile"></span>
+          <input type="number" name="" id="" v-model="valid">
+        </div>
+        <p v-if="isEmpty(valid) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写验证码</p>
+      </div>
+      <div class="list">
+        <div :class="[
+          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(name) && !isEmpty(email) && !isEmpty(address) && !isEmpty(tel) && codeValid
+          ?
+          'submit'
+          :
+          'submit submit-disable']"
+          @click="hasClickSub = true">
+          提交
         </div>
       </div>
     </div>
@@ -114,6 +142,7 @@
 <script>
 import VDistpicker from 'v-distpicker'
 import demo from './school.json'
+import { isEmpty } from 'lodash'
 function ajax () {
   var ajaxData = {
     type: arguments[0].type || 'GET',
@@ -174,7 +203,15 @@ export default {
       major: '',
       province: '',
       school: [],
-      chosedSchool: {}
+      chosedSchool: {},
+      name: '',
+      email: '',
+      address: '',
+      tel: '',
+      valid: '',
+      hasCollage: false,
+      hasClickSub: false,
+      codeValid: false
     }
   },
   methods: {
@@ -203,8 +240,40 @@ export default {
         }
       })
     },
+    isEmpty: function (data) {
+      return isEmpty(data)
+    },
     onSelected: function (data) {
       console.log(data)
+    },
+    onMsgSend: function () {
+      if (!isEmpty(this.tel)) {
+        let _this = this
+        let url = 'http://locateu.cn/tool/checkNumber.php'
+        let data = {
+          phone: this.tel
+        }
+        ajax({
+          type: 'get',
+          url: url,
+          dataType: 'json',
+          data: data,
+          success: function (data) {
+            console.log(data)
+            if (data.state === 'success') {
+              if (_this.valid === data.num) {
+                alert('yes')
+                _this.codeValid = true
+              }
+            }
+          },
+          error: function () {
+            console.log('error')
+          }
+        })
+      } else {
+        alert('请填写手机号')
+      }
     }
   },
   mounted () {
@@ -228,8 +297,9 @@ li {
 a {
   color: #42b983;
 }
-p, span, input {
+p, span, input, select {
   margin: 0;
+  background: transparent;
 }
 .content {
   width: 98%;
@@ -273,5 +343,45 @@ p, span, input {
   border-radius: 3px;
   border: #AAB2BD solid 1px;
   padding: 0 5px;
+}
+.disabled {
+  border: red solid 1px;
+}
+.list {
+  margin: 20px 0;
+}
+.list p {
+  margin-bottom: 10px;
+}
+.address {
+  margin-top: 10px;
+}
+.submit {
+  background-color: rgb(255, 133, 0);
+  color: rgb(255, 255, 255);
+  border-color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+.submit-disable {
+  background-color: rgb(250, 174, 92);
+}
+.sendMsg {
+  display: inline-block;
+  padding: 5px 7px;
+  background-color: rgb(255, 133, 0);
+  color: rgb(255, 255, 255);
+  border-color: rgb(255, 255, 255);
+  border-radius: 3px;
+}
+.sendMsg:hover {
+  background-color: rgba(255, 132, 0, 0.726)
+}
+.phone {
+  width: 63%!important;
+}
+.hint {
+  color: red;
 }
 </style>
