@@ -66,8 +66,17 @@
         <p>选择报考学校<span class="red_star">*</span></p>
         <div class="enter">
           <span class="fa fa-bank"></span>
-          <select name="" id=""></select>
+          <select name="" id="" v-model="chosedSchool">
+            <option v-for="sc in school" :value="sc" v-bind:key="sc.id">
+              {{sc.schoolname}}
+            </option>
+          </select>
         </div>
+      </div>
+      <div>
+        <p v-if="chosedSchool.majorcode1">{{chosedSchool.majorcode1}}</p>
+        <p v-if="chosedSchool.majorcode2">{{chosedSchool.majorcode2}}</p>
+        <p v-if="chosedSchool.majorcode3">{{chosedSchool.majorcode3}}</p>
       </div>
       <div>
         <p>请填写姓名<span class="red_star">*</span></p>
@@ -90,21 +99,21 @@
           <span class="fa fa-address-book-o"></span>
           <input type="text">
         </div>
-     </div>
-     <div>
+      </div>
+      <div>
         <p>请填写手机号<span class="red_star">*</span></p>
         <div class="enter">
           <span class="fa fa-mobile"></span>
           <input type="number" name="" id="">
         </div>
-     </div>
-     
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import VDistpicker from 'v-distpicker'
+import demo from './school.json'
 function ajax () {
   var ajaxData = {
     type: arguments[0].type || 'GET',
@@ -163,29 +172,34 @@ export default {
       msg: 'd',
       collageName: '',
       major: '',
-      province: ''
+      province: '',
+      school: [],
+      chosedSchool: {}
     }
   },
   methods: {
     onProvinceChange: function () {
+      let _this = this
       console.log(this.province, this.major)
       // let url = 'http://locateu.cn/tool/sql.class.php?mod=sql_province'
-      let url = './tool/sql.class.php?mod=sql_province'
+      let url = 'http://127.0.0.1/tool/sql.class.php?mod=sql_province'
       let data = {
         major: this.major,
         Province: this.province
       }
-      // ajax(url, data, method, success)
       ajax({
-        type: 'POST',
+        type: 'post',
         url: url,
-        dataType: 'jsonp',
+        dataType: 'json',
         data: data,
-        success: function (msg) {
-          console.log(msg)
+        success: function (data) {
+          console.log(data)
         },
         error: function () {
           console.log('error')
+          let data = demo
+          _this.school = data
+          console.log(data)
         }
       })
     },
