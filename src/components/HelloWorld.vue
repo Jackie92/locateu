@@ -141,7 +141,6 @@
 
 <script>
 import VDistpicker from 'v-distpicker'
-import demo from './school.json'
 import { isEmpty } from 'lodash'
 function ajax () {
   var ajaxData = {
@@ -219,10 +218,10 @@ export default {
       let _this = this
       console.log(this.province, this.major)
       // let url = 'http://locateu.cn/tool/sql.class.php?mod=sql_province'
-      let url = 'http://127.0.0.1/tool/sql.class.php?mod=sql_province'
+      let url = 'http://suntingyao.com/tool/sql.class.php?mod=sql_province'
       let data = {
         major: this.major,
-        Province: this.province
+        province: this.province
       }
       ajax({
         type: 'post',
@@ -231,12 +230,10 @@ export default {
         data: data,
         success: function (data) {
           console.log(data)
+          _this.school = data
         },
         error: function () {
           console.log('error')
-          let data = demo
-          _this.school = data
-          console.log(data)
         }
       })
     },
@@ -249,7 +246,8 @@ export default {
     onMsgSend: function () {
       if (!isEmpty(this.tel)) {
         let _this = this
-        let url = 'http://locateu.cn/tool/checkNumber.php'
+        // let url = 'http://locateu.cn/tool/checkNumber.php'
+        let url = 'http://suntingyao.com/tool/checkNumber.php'
         let data = {
           phone: this.tel
         }
@@ -343,6 +341,7 @@ p, span, input, select {
   border-radius: 3px;
   border: #AAB2BD solid 1px;
   padding: 0 5px;
+  max-width: 330px;
 }
 .disabled {
   border: red solid 1px;

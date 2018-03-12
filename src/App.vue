@@ -17,11 +17,7 @@ html, body, #app {
 body {
   background: url("./assets/bg.png") top center no-repeat;
   background-size: cover;
-}
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "Microsoft YaHei", "微软雅黑";
 }
 
 </style>
