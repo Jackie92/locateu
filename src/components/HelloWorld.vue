@@ -14,7 +14,7 @@
         <p>选择专业<span class="red_star">*</span></p>
         <div :class="[!isEmpty(major) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-graduation-cap"></span>
-          <select name="" id="" v-model="major">
+          <select name="" id="" v-model="major" @change="onProvinceChange">
             <option value="cityplanning">城市规划</option>
             <option value="architecture">建筑学</option>
             <option value="landscape">风景园林</option>
@@ -78,9 +78,16 @@
         <p v-if="isEmpty(chosedSchool) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择报考学校</p>
       </div>
       <div class="list">
-        <p v-if="chosedSchool.majorcode1">{{chosedSchool.majorcode1}}</p>
-        <p v-if="chosedSchool.majorcode2">{{chosedSchool.majorcode2}}</p>
-        <p v-if="chosedSchool.majorcode3">{{chosedSchool.majorcode3}}</p>
+        <p>选择报考专业<span class="red_star">*</span></p>
+        <div :class="[!isEmpty(chosedMajor) || !hasClickSub ? 'enter' : 'enter disabled']">
+          <span class="fa fa-bank"></span>
+          <select name="" id="" v-model="chosedMajor">
+            <option v-if="chosedSchool.majorcode1" :value="chosedSchool.majorcode1">{{chosedSchool.majorcode1}}</option>
+            <option v-if="chosedSchool.majorcode2" :value="chosedSchool.majorcode2">{{chosedSchool.majorcode2}}</option>
+            <option v-if="chosedSchool.majorcode3" :value="chosedSchool.majorcode3">{{chosedSchool.majorcode3}}</option>
+          </select>
+        </div>
+        <p v-if="isEmpty(chosedSchool) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择报考学校</p>
       </div>
       <div class="list">
         <p>请填写姓名<span class="red_star">*</span></p>
@@ -112,7 +119,7 @@
         <div :class="[!isEmpty(tel) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-mobile"></span>
           <input type="number" name="" id="" class="phone" v-model="tel">
-          <span class="sendMsg" @click="onMsgSend">发送验证码</span>
+          <span class="sendMsg" @click="onMsgSend">{{phoneSendMsg}}</span>
         </div>
         <p v-if="isEmpty(tel) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写手机号</p>
       </div>
@@ -126,12 +133,12 @@
       </div>
       <div class="list">
         <div :class="[
-          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(name) && !isEmpty(email) && !isEmpty(address) && !isEmpty(tel) && codeValid
+          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(chosedMajor) && !isEmpty(name) && !isEmpty(email) && !isEmpty(address) && !isEmpty(tel) && !isEmpty(valid)
           ?
           'submit'
           :
           'submit submit-disable']"
-          @click="hasClickSub = true">
+          @click="submit">
           提交
         </div>
       </div>
@@ -210,18 +217,19 @@ export default {
       valid: '',
       hasCollage: false,
       hasClickSub: false,
-      codeValid: false
+      codeValid: false,
+      chosedMajor: '',
+      phoneSendMsg: '发送验证码'
     }
   },
   methods: {
     onProvinceChange: function () {
       let _this = this
-      console.log(this.province, this.major)
       // let url = 'http://locateu.cn/tool/sql.class.php?mod=sql_province'
       let url = 'http://suntingyao.com/tool/sql.class.php?mod=sql_province'
       let data = {
         major: this.major,
-        province: this.province
+        province: this.province.indexOf('市') > -1 ? this.province.replace('市', '') : this.province.indexOf('省') > -1 ? this.province.replace('省', '') : this.province
       }
       ajax({
         type: 'post',
@@ -242,35 +250,78 @@ export default {
     },
     onSelected: function (data) {
       console.log(data)
+      this.addProvince = data.province.value + data.city.value + data.area.value
     },
     onMsgSend: function () {
-      if (!isEmpty(this.tel)) {
-        let _this = this
-        // let url = 'http://locateu.cn/tool/checkNumber.php'
-        let url = 'http://suntingyao.com/tool/checkNumber.php'
-        let data = {
-          phone: this.tel
+      let countdown = 60
+      function settime (_this) {
+        if (countdown === 0) {
+          _this.phoneSendMsg = '发送验证码'
+        } else {
+          countdown--
+          _this.phoneSendMsg = `等待${countdown}秒`
+          setTimeout(function () {
+            settime(_this)
+          }, 1000)
         }
+      }
+      if (this.tel !== '') {
+        if (this.phoneSendMsg === '发送验证码') {
+          let _this = this
+          settime(_this)
+          let url = `http://locateu.cn/tool/checkNumber.php?phone=${this.tel}`
+          // let url = `http://suntingyao.com/tool/checkNumber.php?phone=${this.tel}`
+          let data = {
+            phone: this.tel
+          }
+          ajax({
+            type: 'get',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+              if (data.state === 'success') {
+                _this.validBackCode = data.num
+                _this.validBackPhone = data.phone
+              }
+            },
+            error: function () {
+              console.log('error')
+            }
+          })
+        }
+      } else {
+        alert('请填写手机号')
+      }
+    },
+    submit: function () {
+      this.hasClickSub = true
+      if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
+        // if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
+        let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
+        let infoAry = ['2', '2', this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
+        // let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+        let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
+        let data = {
+          rowAry: rowAry,
+          infoAry: infoAry
+        }
+        console.log(data)
         ajax({
-          type: 'get',
+          type: 'post',
           url: url,
           dataType: 'json',
           data: data,
           success: function (data) {
             console.log(data)
-            if (data.state === 'success') {
-              if (_this.valid === data.num) {
-                alert('yes')
-                _this.codeValid = true
-              }
-            }
           },
           error: function () {
             console.log('error')
           }
         })
-      } else {
-        alert('请填写手机号')
+        // } else {
+        //   alert('验证码错误或手机号码不匹配！')
+        // }
       }
     }
   },
@@ -367,12 +418,14 @@ p, span, input, select {
   background-color: rgb(250, 174, 92);
 }
 .sendMsg {
-  display: inline-block;
+  display: block;
   padding: 5px 7px;
   background-color: rgb(255, 133, 0);
   color: rgb(255, 255, 255);
   border-color: rgb(255, 255, 255);
   border-radius: 3px;
+  float: right;
+  margin-top: 7px;
 }
 .sendMsg:hover {
   background-color: rgba(255, 132, 0, 0.726)
