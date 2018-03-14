@@ -299,7 +299,7 @@ export default {
       if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
         // if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
         let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
-        let infoAry = ['2', '2', this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
+        let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
         // let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
         let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
         let data = {
