@@ -314,6 +314,7 @@ export default {
           data: data,
           success: function (data) {
             console.log(data)
+            alert('提交成功！分享到朋友圈试试')
           },
           error: function () {
             console.log('error')
