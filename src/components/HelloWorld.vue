@@ -1,5 +1,8 @@
 <template>
   <div class="content">
+    <div class="loading" v-if="showLoading">
+      <pacman-loader color="lightblue"></pacman-loader>
+    </div>
     <h1>资料收集页</h1>
     <div class="form">
       <div class="list">
@@ -8,6 +11,11 @@
           <span class="fa fa-bank"></span>
           <input type="text" v-model="collageName">
         </div>
+        <div class="origin-body" v-if="originColleges.length > 0" v-show="!isSelect">
+            <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
+              {{col.schoolname}}
+            </p>
+          </div>
         <p v-if="isEmpty(collageName) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写本科院校</p>
       </div>
       <div class="list">
@@ -15,6 +23,7 @@
         <div :class="[!isEmpty(major) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-graduation-cap"></span>
           <select name="" id="" v-model="major" @change="onProvinceChange">
+            <option value="">请选择</option>
             <option value="cityplanning">城市规划</option>
             <option value="architecture">建筑学</option>
             <option value="landscape">风景园林</option>
@@ -27,6 +36,7 @@
         <div :class="[!isEmpty(province) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-map-signs"></span>
           <select name="" id="" v-model="province" @change="onProvinceChange">
+            <option value="">请选择</option>
             <option value="北京">北京市</option>
             <option value="浙江省">浙江省</option>
             <option value="天津市">天津市</option>
@@ -70,6 +80,7 @@
         <div :class="[!isEmpty(chosedSchool) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <select name="" id="" v-model="chosedSchool">
+            <option value="">请选择</option>
             <option v-for="sc in school" :value="sc" v-bind:key="sc.id">
               {{sc.schoolname}}
             </option>
@@ -82,6 +93,7 @@
         <div :class="[!isEmpty(chosedMajor) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <select name="" id="" v-model="chosedMajor">
+            <option value="">请选择</option>
             <option v-if="chosedSchool.majorcode1" :value="chosedSchool.majorcode1">{{chosedSchool.majorcode1}}</option>
             <option v-if="chosedSchool.majorcode2" :value="chosedSchool.majorcode2">{{chosedSchool.majorcode2}}</option>
             <option v-if="chosedSchool.majorcode3" :value="chosedSchool.majorcode3">{{chosedSchool.majorcode3}}</option>
@@ -149,6 +161,8 @@
 <script>
 import VDistpicker from 'v-distpicker'
 import { isEmpty } from 'lodash'
+import 'vue-loaders/dist/vue-loaders.css'
+import { PacmanLoader } from 'vue-loaders'
 function ajax () {
   var ajaxData = {
     type: arguments[0].type || 'GET',
@@ -201,7 +215,10 @@ function convertData (data) {
 }
 export default {
   name: 'index',
-  components: { VDistpicker },
+  components: {
+    VDistpicker,
+    'pacman-loader': PacmanLoader
+  },
   data () {
     return {
       msg: 'd',
@@ -219,10 +236,49 @@ export default {
       hasClickSub: false,
       codeValid: false,
       chosedMajor: '',
-      phoneSendMsg: '发送验证码'
+      phoneSendMsg: '发送验证码',
+      sendColleges: false,
+      originColleges: [],
+      isSelect: false,
+      collegesTemp: '',
+      showLoading: false
+    }
+  },
+  watch: {
+    collageName (val) {
+      if (val !== this.collegesTemp) {
+        this.isSelect = false
+      }
+      if (val.length > 3 && !this.sendColleges) {
+        let url = 'http://locateu.cn/tool/sql.class.php?mod=getColleges'
+        let param = {
+          colleges: val
+        }
+        let that = this
+        this.sendColleges = true
+        this.showLoading = true
+        ajax({
+          type: 'post',
+          url: url,
+          dataType: 'json',
+          data: param,
+          success: function (data) {
+            that.sendColleges = false
+            that.originColleges = data
+            that.showLoading = false
+          },
+          error: function () {
+          }
+        })
+      }
     }
   },
   methods: {
+    originClick: function (col) {
+      this.collageName = col.schoolname
+      this.collegesTemp = col.schoolname
+      this.isSelect = true
+    },
     onProvinceChange: function () {
       let _this = this
       let url = 'http://locateu.cn/tool/sql.class.php?mod=sql_province'
@@ -231,17 +287,17 @@ export default {
         major: this.major,
         province: this.province.indexOf('市') > -1 ? this.province.replace('市', '') : this.province.indexOf('省') > -1 ? this.province.replace('省', '') : this.province
       }
+      this.showLoading = true
       ajax({
         type: 'post',
         url: url,
         dataType: 'json',
         data: data,
         success: function (data) {
-          console.log(data)
           _this.school = data
+          _this.showLoading = false
         },
         error: function () {
-          console.log('error')
         }
       })
     },
@@ -249,7 +305,6 @@ export default {
       return isEmpty(data)
     },
     onSelected: function (data) {
-      console.log(data)
       this.addProvince = data.province.value + data.city.value + data.area.value
     },
     onMsgSend: function () {
@@ -274,6 +329,7 @@ export default {
           let data = {
             phone: this.tel
           }
+          this.showLoading = true
           ajax({
             type: 'get',
             url: url,
@@ -283,10 +339,10 @@ export default {
               if (data.state === 'success') {
                 _this.validBackCode = data.num
                 _this.validBackPhone = data.phone
+                _this.showLoading = false
               }
             },
             error: function () {
-              console.log('error')
             }
           })
         }
@@ -302,47 +358,46 @@ export default {
       let that = this
       if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
         if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
-        let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
-        let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
-        let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
-        // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
-        let data = {
-          rowAry: rowAry,
-          infoAry: infoAry
-        }
-        console.log(data)
-        this.disabled = true
-        ajax({
-          type: 'post',
-          url: url,
-          dataType: 'json',
-          data: data,
-          success: function (data) {
-            let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
-            let param = {
-              colleges: that.chosedSchool.schoolname,
-              majorcode: that.chosedMajor
-            }
-            ajax({
-              type: 'post',
-              url: url,
-              dataType: 'json',
-              data: param,
-              success: function (data) {
-                console.log(data)
-                window.NUMBER = data.msg
-              },
-              error: function () {
-                console.log('error')
-              }
-            })
-
-            alert('提交成功！分享到朋友圈试试')
-          },
-          error: function () {
-            console.log('error')
+          let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
+          let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
+          let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+          // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
+          let data = {
+            rowAry: rowAry,
+            infoAry: infoAry
           }
-        })
+          this.disabled = true
+          this.showLoading = true
+          ajax({
+            type: 'post',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+              let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
+              let param = {
+                colleges: that.chosedSchool.schoolname,
+                majorcode: that.chosedMajor
+              }
+              that.showLoading = true
+              ajax({
+                type: 'post',
+                url: url,
+                dataType: 'json',
+                data: param,
+                success: function (data) {
+                  window.NUMBER = data.msg
+                  that.showLoading = false
+                },
+                error: function () {
+                }
+              })
+
+              alert('提交成功！分享到朋友圈试试')
+            },
+            error: function () {
+            }
+          })
         } else {
           alert('验证码错误或手机号码不匹配！')
         }
@@ -373,6 +428,9 @@ a {
 p, span, input, select {
   margin: 0;
   background: transparent;
+}
+input, select {
+  font-size: 16px;
 }
 .content {
   width: 98%;
@@ -459,5 +517,24 @@ p, span, input, select {
 }
 .hint {
   color: red;
+}
+.origin-body {
+  border: #AAB2BD solid 1px;
+  border-top: none;
+  position: absolute;
+  background: white;
+  width: 85%;
+}
+.origin-body p {
+  padding: 10px 10px 0 10px;
+}
+.loading {
+  position: fixed;
+  z-index: 1;
+  background: transparent;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  padding-top: 70%;
 }
 </style>
