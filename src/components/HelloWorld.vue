@@ -225,8 +225,8 @@ export default {
   methods: {
     onProvinceChange: function () {
       let _this = this
-      // let url = 'http://locateu.cn/tool/sql.class.php?mod=sql_province'
-      let url = 'http://suntingyao.com/tool/sql.class.php?mod=sql_province'
+      let url = 'http://locateu.cn/tool/sql.class.php?mod=sql_province'
+      // let url = 'http://suntingyao.com/tool/sql.class.php?mod=sql_province'
       let data = {
         major: this.major,
         province: this.province.indexOf('市') > -1 ? this.province.replace('市', '') : this.province.indexOf('省') > -1 ? this.province.replace('省', '') : this.province
@@ -296,33 +296,56 @@ export default {
     },
     submit: function () {
       this.hasClickSub = true
+      if (this.disabled) {
+        return
+      }
+      let that = this
       if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
-        // if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
+        if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
         let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
         let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
-        // let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
-        let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
+        let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+        // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
         let data = {
           rowAry: rowAry,
           infoAry: infoAry
         }
         console.log(data)
+        this.disabled = true
         ajax({
           type: 'post',
           url: url,
           dataType: 'json',
           data: data,
           success: function (data) {
-            console.log(data)
+            let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
+            let param = {
+              colleges: that.chosedSchool.schoolname,
+              majorcode: that.chosedMajor
+            }
+            ajax({
+              type: 'post',
+              url: url,
+              dataType: 'json',
+              data: param,
+              success: function (data) {
+                console.log(data)
+                window.NUMBER = data.msg
+              },
+              error: function () {
+                console.log('error')
+              }
+            })
+
             alert('提交成功！分享到朋友圈试试')
           },
           error: function () {
             console.log('error')
           }
         })
-        // } else {
-        //   alert('验证码错误或手机号码不匹配！')
-        // }
+        } else {
+          alert('验证码错误或手机号码不匹配！')
+        }
       }
     }
   },
