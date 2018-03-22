@@ -155,6 +155,18 @@
         </div>
       </div>
     </div>
+    <div v-if="showArch" class="success">
+      <div class="people">{{ people }}</div>
+      <img src="../assets/arch.jpg" alt="建筑学">
+    </div>
+    <div v-if="showCity" class="success">
+      <div class="people">{{ people }}</div>
+      <img src="../assets/city.jpg" alt="城市规划">
+    </div>
+    <div v-if="showLand" class="success">
+      <div class="people">{{ people }}</div>
+      <img src="../assets/land.jpg" alt="风景园林">
+    </div>
   </div>
 </template>
 
@@ -241,7 +253,11 @@ export default {
       originColleges: [],
       isSelect: false,
       collegesTemp: '',
-      showLoading: false
+      showLoading: false,
+      showArch: false,
+      showCity: false,
+      showLand: false,
+      people: '32'
     }
   },
   watch: {
@@ -387,12 +403,25 @@ export default {
                 data: param,
                 success: function (data) {
                   window.NUMBER = data.msg
+                  that.people = data.msg
                   that.showLoading = false
                 },
                 error: function () {
                 }
               })
-
+              switch (that.major) {
+                case 'cityplanning':
+                  that.showCity = true
+                  break
+                case 'architecture':
+                  that.showArch = true
+                  break
+                case 'landscape':
+                  that.showLand = true
+                  break
+                default:
+                  break
+              }
               alert('提交成功！分享到朋友圈试试')
             },
             error: function () {
@@ -536,5 +565,23 @@ input, select {
   height: 100%;
   width: 100%;
   padding-top: 70%;
+}
+.success {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.success img {
+  width: 100%;
+  height: 100%;
+}
+.people {
+  position: absolute;
+  top: 45.5%;
+  left: 45%;
+  font-size: 30px;
+  color: darkslategrey;
 }
 </style>
