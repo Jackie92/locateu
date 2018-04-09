@@ -3,10 +3,10 @@
     <div class="loading" v-if="showLoading">
       <pacman-loader color="lightblue"></pacman-loader>
     </div>
-    <h1>资料收集页</h1>
+    <div class="pic_des"><img src="../assets/j_01.png" alt=""></div>
     <div class="form">
       <div class="list">
-        <p>请填写本科院校<span class="red_star">*</span></p>
+        <p>请填写本科就读高校<span class="red_star">*</span></p>
         <div :class="[!isEmpty(collageName) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <input type="text" v-model="collageName">
@@ -16,12 +16,13 @@
               {{col.schoolname}}
             </p>
           </div>
+        <p style="color: darkgray">帮你看看有多少小伙伴和你一起拼搏</p>
         <p v-if="isEmpty(collageName) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写本科院校</p>
       </div>
       <div class="list">
-        <p>选择专业<span class="red_star">*</span></p>
+        <p>请选择报考专业类别<span class="red_star">*</span></p>
         <div :class="[!isEmpty(major) || !hasClickSub ? 'enter' : 'enter disabled']">
-          <span class="fa fa-graduation-cap"></span>
+          <span class="fa fa-edit"></span>
           <select name="" id="" v-model="major" @change="onProvinceChange">
             <option value="">请选择</option>
             <option value="cityplanning">城市规划</option>
@@ -32,9 +33,8 @@
         <p v-if="isEmpty(major) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择专业</p>
       </div>
       <div class="list">
-        <p>选择省份<span class="red_star">*</span></p>
+        <p>请选择招生单位所处省份<span class="red_star">*</span></p>
         <div :class="[!isEmpty(province) || !hasClickSub ? 'enter' : 'enter disabled']">
-          <span class="fa fa-map-signs"></span>
           <select name="" id="" v-model="province" @change="onProvinceChange">
             <option value="">请选择</option>
             <option value="北京">北京市</option>
@@ -76,7 +76,7 @@
         <p v-if="isEmpty(province) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择省份</p>
       </div>
       <div class="list">
-        <p>选择报考学校<span class="red_star">*</span></p>
+        <p>请选择招生单位名称<span class="red_star">*</span></p>
         <div :class="[!isEmpty(chosedSchool) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <select name="" id="" v-model="chosedSchool">
@@ -89,9 +89,8 @@
         <p v-if="isEmpty(chosedSchool) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择报考学校</p>
       </div>
       <div class="list">
-        <p>选择报考专业<span class="red_star">*</span></p>
+        <p>请选择具体报考专业名称<span class="red_star">*</span></p>
         <div :class="[!isEmpty(chosedMajor) || !hasClickSub ? 'enter' : 'enter disabled']">
-          <span class="fa fa-bank"></span>
           <select name="" id="" v-model="chosedMajor">
             <option value="">请选择</option>
             <option v-if="chosedSchool.majorcode1" :value="chosedSchool.majorcode1">{{chosedSchool.majorcode1}}</option>
@@ -99,73 +98,89 @@
             <option v-if="chosedSchool.majorcode3" :value="chosedSchool.majorcode3">{{chosedSchool.majorcode3}}</option>
           </select>
         </div>
+        <p style="color: darkgray">你可以知道有多少竞争对手，并且<br>他们是否来自985/211/双一流</p>
         <p v-if="isEmpty(chosedSchool) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请选择报考学校</p>
       </div>
-      <div class="list">
-        <p>请填写姓名<span class="red_star">*</span></p>
-        <div :class="[!isEmpty(name) || !hasClickSub ? 'enter' : 'enter disabled']">
-          <span class="fa fa-child"></span>
+    </div>
+    <div class="pic_des"><img src="../assets/j_03.png" alt=""></div>
+    <div class="form_person">
+      <div class="list" style="margin-bottom: 10px;">
+        <p>请输入你的收件地址<span class="red_star">*</span></p>
+        <p style="color: darkgray">（请确保在5-6月能顺利收到邮件）</p>
+        <v-distpicker @selected="onSelected"></v-distpicker>
+        <div class="enter address">
+          <input type="text" v-model="address">
+        </div>
+      </div>
+      <div class="list" style="overflow:hidden;margin-bottom: 10px;">
+        <p style="float:left;padding-top:10px;">收件人<span class="red_star">*</span></p>
+        <div style="float:left;width:50%;margin-left:10px;" :class="[!isEmpty(name) || !hasClickSub ? 'enter' : 'enter disabled']">
           <input name="" id="" v-model="name"/>
         </div>
         <p v-if="isEmpty(name) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写姓名</p>
       </div>
-      <div class="list">
+      <!-- <div class="list" style="display:none;">
         <p>请填写邮箱<span class="red_star">*</span></p>
         <div :class="[!isEmpty(email) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-envelope-o fa-fw"></span>
           <input type="email" name="" id="" v-model="email">
         </div>
         <p v-if="isEmpty(email) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写邮箱</p>
-      </div>
+      </div> -->
       <div class="list">
-        <p>请填写住址<span class="red_star">*</span></p>
-        <v-distpicker @selected="onSelected"></v-distpicker>
-        <div :class="[!isEmpty(address) || !hasClickSub ? 'enter address' : 'enter address disabled']">
-          <span class="fa fa-address-book-o"></span>
-          <input type="text" v-model="address">
-        </div>
-        <p v-if="isEmpty(address) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写邮箱</p>
-      </div>
-      <div class="list">
-        <p>请填写手机号<span class="red_star">*</span></p>
+        <p>请填写手机号码<span class="red_star">*</span></p>
         <div :class="[!isEmpty(tel) || !hasClickSub ? 'enter' : 'enter disabled']">
-          <span class="fa fa-mobile"></span>
           <input type="number" name="" id="" class="phone" v-model="tel">
           <span class="sendMsg" @click="onMsgSend">{{phoneSendMsg}}</span>
         </div>
         <p v-if="isEmpty(tel) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写手机号</p>
       </div>
       <div class="list">
-        <p>请填写验证码<span class="red_star">*</span></p>
+        <!-- <p>请填写验证码<span class="red_star">*</span></p> -->
         <div :class="[!isEmpty(valid) || !hasClickSub ? 'enter' : 'enter disabled']">
-          <span class="fa fa-mobile"></span>
-          <input type="number" name="" id="" v-model="valid">
+          <input type="number" name="" id="" v-model="valid" style="width:63%;">
+          <span class="sendMsg">填写验证码</span>
         </div>
         <p v-if="isEmpty(valid) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写验证码</p>
       </div>
       <div class="list">
         <div :class="[
-          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(chosedMajor) && !isEmpty(name) && !isEmpty(email) && !isEmpty(address) && !isEmpty(tel) && !isEmpty(valid)
+          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(chosedMajor) && !isEmpty(name) && !isEmpty(tel) && !isEmpty(valid)
           ?
           'submit'
           :
           'submit submit-disable']"
           @click="submit">
-          提交
+          寻找隐藏的对手
+        </div>
+        <div class="submit">
+          再去看看学校信息
         </div>
       </div>
     </div>
     <div v-if="showArch" class="success">
+      <div><img :src="WEIXINHEAD" alt=""></div>
+      <div class="userName">{{WEIXINNAME}}</div>
       <div class="people">{{ people }}</div>
-      <img src="../assets/arch.jpg" alt="建筑学">
+      <div class="sameMajor">{{ sameMajor }}</div>
+      <div class="sameSchool">{{ sameSchool }}</div>
+      <img src="../assets/arch.jpeg" alt="建筑学">
     </div>
     <div v-if="showCity" class="success">
+      <div><img :src="WEIXINHEAD" alt=""></div>
+      <div class="userName">{{WEIXINNAME}}</div>
       <div class="people">{{ people }}</div>
-      <img src="../assets/city.jpg" alt="城市规划">
+      <div class="sameMajor">{{ sameMajor }}</div>
+      <div class="sameSchool">{{ sameSchool }}</div>
+      <img src="../assets/city.jpeg" alt="城市规划">
     </div>
     <div v-if="showLand" class="success">
+      <div><img :src="WEIXINHEAD" alt=""></div>
+      <div class="userName">{{WEIXINNAME}}</div>
       <div class="people">{{ people }}</div>
-      <img src="../assets/land.jpg" alt="风景园林">
+      <div class="sameMajor">{{ sameMajor }}</div>
+      <div class="sameSchool">{{ sameSchool }}</div>
+      <img src="../assets/land.jpeg" alt="风景园林">
     </div>
   </div>
 </template>
@@ -240,7 +255,7 @@ export default {
       school: [],
       chosedSchool: {},
       name: '',
-      email: '',
+      // email: '',
       address: '',
       tel: '',
       valid: '',
@@ -257,7 +272,11 @@ export default {
       showArch: false,
       showCity: false,
       showLand: false,
-      people: '32'
+      people: '1',
+      sameMajor: '1',
+      sameSchool: '1',
+      WEIXINHEAD: '',
+      WEIXINNAME: ''
     }
   },
   watch: {
@@ -373,9 +392,9 @@ export default {
       }
       let that = this
       if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
-        if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
+        if (/*his.validBackCode === this.valid && this.tel === this.validBackPhone*/true) {
           let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
-          let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, this.email, this.addProvince + this.address, this.tel, this.chosedMajor]
+          let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, '', this.addProvince + this.address, this.tel, this.chosedMajor]
           let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
           // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
           let data = {
@@ -392,7 +411,8 @@ export default {
             success: function (data) {
               let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
               let param = {
-                colleges: that.chosedSchool.schoolname,
+                colleges: that.collageName,
+                applyschoolname: that.chosedSchool.schoolname,
                 majorcode: that.chosedMajor
               }
               that.showLoading = true
@@ -402,9 +422,43 @@ export default {
                 dataType: 'json',
                 data: param,
                 success: function (data) {
-                  window.NUMBER = data.msg
-                  that.people = data.msg
+                  window.NUMBER = data.people
+                  that.people = data.people
+                  that.sameMajor = data.samemajor
+                  that.sameSchool = data.sameschool
                   that.showLoading = false
+                  wx.ready(function () {
+
+                    //自动执行的
+                    wx.checkJsApi({
+                      jsApiList: [
+                        'onMenuShareTimeline',
+                        'onMenuShareAppMessage'
+                      ],
+                      trigger:function() {
+                        
+                      },
+                      success:function() {
+                      
+                      }
+                      
+                    });
+
+                    wx.onMenuShareTimeline({
+                      title: 'LOCA已经帮我找到了'+window.NUMBER+'名考研竞争者，快来看看你有多少隐藏对手吧',
+                      link: 'http://locateu.cn/',
+                      imgUrl: 'http://locateu.cn/logo.jpeg',
+                      trigger: function (res) {
+                      },
+                      success: function (res) {
+                      },
+                      cancel: function (res) {
+                      },
+                      fail: function (res) {
+
+                      }
+                    });
+                  });
                 },
                 error: function () {
                 }
@@ -434,6 +488,8 @@ export default {
     }
   },
   mounted () {
+    this.WEIXINHEAD = window.WEIXINHEAD ? window.WEIXINHEAD : ''
+    this.WEIXINNAME = window.WEIXINNAME ? window.WEIXINNAME : ''
   }
 }
 </script>
@@ -462,14 +518,9 @@ input, select {
   font-size: 16px;
 }
 .content {
-  width: 98%;
+  width: 100%;
   margin: 0 auto;
-  background-color: #FFF;
   max-width: 700px;
-  border-width: 0;
-  border-color: #AAB2BD;
-  box-shadow: 0 3px 5px rgba(0,0,0,0.15);
-  padding-bottom: 10px;
 }
 .content h1 {
   border-bottom: 1px solid #C3C9D0;
@@ -477,11 +528,13 @@ input, select {
 }
 .form {
   padding: 0 15px;
+  background: url('../assets/j_02.png') center center no-repeat;
+  background-size: cover;
 }
 .red_star {
   color: red;
   margin-top: 1px;
-  display: inline-block;
+  display: none;
   line-height: 14px;
   vertical-align: middle;
   height: 10px;
@@ -509,37 +562,45 @@ input, select {
   border: red solid 1px;
 }
 .list {
-  margin: 20px 0;
+  margin: 0 0 20px 0;
 }
 .list p {
-  margin-bottom: 10px;
+  font-size: 12px;
+}
+.list p:first-child {
+  font-size: 20px;
+}
+.list:last-child {
+  margin: 0;
+}
+.list:last-child p {
+  margin-bottom: 0;
 }
 .address {
   margin-top: 10px;
 }
 .submit {
-  background-color: rgb(255, 133, 0);
+  background-color: black;
   color: rgb(255, 255, 255);
   border-color: rgb(255, 255, 255);
   text-align: center;
   padding: 10px 15px;
   border-radius: 5px;
+  width: 38%;
+  display: inline-block;
 }
 .submit-disable {
-  background-color: rgb(250, 174, 92);
+  background-color: rgb(0,0,0,.6);
 }
 .sendMsg {
   display: block;
   padding: 5px 7px;
-  background-color: rgb(255, 133, 0);
+  background-color: black;
   color: rgb(255, 255, 255);
   border-color: rgb(255, 255, 255);
   border-radius: 3px;
   float: right;
   margin-top: 7px;
-}
-.sendMsg:hover {
-  background-color: rgba(255, 132, 0, 0.726)
 }
 .phone {
   width: 63%!important;
@@ -556,6 +617,7 @@ input, select {
 }
 .origin-body p {
   padding: 10px 10px 0 10px;
+  font-size: 16px!important;
 }
 .loading {
   position: fixed;
@@ -573,15 +635,53 @@ input, select {
   width: 100%;
   height: 100%;
 }
-.success img {
+.success>img {
   width: 100%;
   height: 100%;
 }
+.success>div>img {
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  top: 49%;
+  left: 11.5%;
+}
+.userName {
+  position: absolute;
+  top: 49%;
+  left: 25%;
+}
 .people {
   position: absolute;
-  top: 45.5%;
-  left: 45%;
+  top: 62%;
+  left: 65%;
   font-size: 30px;
   color: darkslategrey;
+}
+.sameMajor {
+  position: absolute;
+  top: 62%;
+  left: 22%;
+  font-size: 30px;
+  color: darkslategrey;
+}
+.sameSchool {
+  position: absolute;
+  top: 62%;
+  left: 43%;
+  font-size: 30px;
+  color: darkslategrey;
+}
+.pic_des img{
+  width: 100%;
+  display: block;
+}
+.form_person {
+  background: url('../assets/j_04.png') center center no-repeat;
+  background-size: cover;
+  padding: 0 15px;
+}
+.distpicker-address-wrapper select {
+  background: transparent;
 }
 </style>
