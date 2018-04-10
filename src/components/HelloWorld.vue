@@ -6,7 +6,7 @@
     <div class="pic_des"><img src="../assets/j_01.png" alt=""></div>
     <div class="form">
       <div class="list">
-        <p>请填写本科就读高校<span class="red_star">*</span></p>
+        <p>请填写本科就读高校（全称）<span class="red_star">*</span></p>
         <div :class="[!isEmpty(collageName) || !hasClickSub ? 'enter' : 'enter disabled']">
           <span class="fa fa-bank"></span>
           <input type="text" v-model="collageName">
@@ -105,9 +105,9 @@
     <div class="pic_des"><img src="../assets/j_03.png" alt=""></div>
     <div class="form_person">
       <div class="list" style="margin-bottom: 10px;">
-        <p>请输入你的收件地址<span class="red_star">*</span></p>
+        <p>需要纸质的同学可以留下收货地址<span class="red_star">*</span></p>
         <p style="color: darkgray">（请确保在5-6月能顺利收到邮件）</p>
-        <v-distpicker @selected="onSelected"></v-distpicker>
+        <v-distpicker :province="mailProvince" :city="mailCity" :area="mailArea" @selected="onSelected"></v-distpicker>
         <div class="enter address">
           <input type="text" v-model="address">
         </div>
@@ -115,6 +115,7 @@
       <div class="list" style="overflow:hidden;margin-bottom: 10px;">
         <p style="float:left;padding-top:10px;">收件人<span class="red_star">*</span></p>
         <div style="float:left;width:50%;margin-left:10px;" :class="[!isEmpty(name) || !hasClickSub ? 'enter' : 'enter disabled']">
+          <span class="fa fa-child"></span>
           <input name="" id="" v-model="name"/>
         </div>
         <p v-if="isEmpty(name) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写姓名</p>
@@ -153,7 +154,7 @@
           @click="submit">
           寻找隐藏的对手
         </div>
-        <div class="submit">
+        <div class="submit" @click="goSchool">
           再去看看学校信息
         </div>
       </div>
@@ -276,7 +277,12 @@ export default {
       sameMajor: '1',
       sameSchool: '1',
       WEIXINHEAD: '',
-      WEIXINNAME: ''
+      WEIXINNAME: '',
+      WEIXINCODE: '',
+      mailProvince: '',
+      mailCity: '',
+      mailArea: '',
+      isBack: false
     }
   },
   watch: {
@@ -309,6 +315,9 @@ export default {
     }
   },
   methods: {
+    goSchool: function () {
+      window.location.href = 'https://jinshuju.net/f/u3PbEt'
+    },
     originClick: function (col) {
       this.collageName = col.schoolname
       this.collegesTemp = col.schoolname
@@ -341,6 +350,9 @@ export default {
     },
     onSelected: function (data) {
       this.addProvince = data.province.value + data.city.value + data.area.value
+      this.mailProvince = data.province.value
+      this.mailCity = data.city.value
+      this.mailArea = data.area.value
     },
     onMsgSend: function () {
       let countdown = 60
@@ -392,14 +404,25 @@ export default {
       }
       let that = this
       if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
-        if (/*his.validBackCode === this.valid && this.tel === this.validBackPhone*/true) {
-          let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailaddress', 'mailphone', 'majorcode']
-          let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, '', this.addProvince + this.address, this.tel, this.chosedMajor]
-          let url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+        if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
+          let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailprovince', 'mailcity', 'mailarea', 'mailaddress', 'mailphone', 'majorcode', 'majortype', 'applyprovince', 'applyschoolid', 'applyschoolmajorcode1', 'applyschoolmajorcode2', 'applyschoolmajorcode3', 'applyschoolprovince']
+          let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, '', this.mailProvince, this.mailCity, this.mailArea, this.address, this.tel, this.chosedMajor, this.major, this.province, this.chosedSchool.id, this.chosedSchool.majorcode1, isEmpty(this.chosedSchool.majorcode2) ? '' : this.chosedSchool.majorcode2, isEmpty(this.chosedSchool.majorcode3) ? '' : this.chosedSchool.majorcode3, this.chosedSchool.province]
+          let url = ''
+          let data = {}
           // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
-          let data = {
-            rowAry: rowAry,
-            infoAry: infoAry
+          if (this.isBack) {
+            url = 'http://locateu.cn/tool/sql.class.php?mod=update_user'
+            data = {
+              rowAry: rowAry,
+              infoAry: infoAry,
+              openid: this.WEIXINCODE
+            }
+          } else {
+            url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+            data = {
+              rowAry: rowAry,
+              infoAry: infoAry
+            }
           }
           this.disabled = true
           this.showLoading = true
@@ -409,6 +432,11 @@ export default {
             dataType: 'json',
             data: data,
             success: function (data) {
+              if (data.msg === 'error') {
+                alert('提交失败！稍后来试试把')
+                that.showLoading = false
+                return
+              }
               let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
               let param = {
                 colleges: that.collageName,
@@ -427,25 +455,19 @@ export default {
                   that.sameMajor = data.samemajor
                   that.sameSchool = data.sameschool
                   that.showLoading = false
+                  // eslint-disable-next-line
                   wx.ready(function () {
-
-                    //自动执行的
+                    // 自动执行的
+                    // eslint-disable-next-line
                     wx.checkJsApi({
                       jsApiList: [
                         'onMenuShareTimeline',
                         'onMenuShareAppMessage'
-                      ],
-                      trigger:function() {
-                        
-                      },
-                      success:function() {
-                      
-                      }
-                      
-                    });
-
+                      ]
+                    })
+                    // eslint-disable-next-line
                     wx.onMenuShareTimeline({
-                      title: 'LOCA已经帮我找到了'+window.NUMBER+'名考研竞争者，快来看看你有多少隐藏对手吧',
+                      title: 'LOCA已经帮我精确找到了' + window.NUMBER + '名报考一个专业的隐藏对手哦，快来看看你有多少隐藏对手吧',
                       link: 'http://locateu.cn/',
                       imgUrl: 'http://locateu.cn/logo.jpeg',
                       trigger: function (res) {
@@ -457,8 +479,23 @@ export default {
                       fail: function (res) {
 
                       }
-                    });
-                  });
+                    })
+                    // eslint-disable-next-line
+                    wx.onMenuShareAppMessage({
+                      title: 'LOCA已经帮我精确找到了' + window.NUMBER + '名报考一个专业的隐藏对手哦，快来看看你有多少隐藏对手吧', // 分享标题
+                      desc: '我已经悄悄在这里看到了多少名考研对手，你想知道你的吗？', // 分享描述
+                      link: 'http://locateu.cn/', // 分享链接，该链接域名必须与当前企业的可信域名一致
+                      imgUrl: 'http://locateu.cn/logo.jpeg', // 分享图标
+                      type: 'link', // 分享类型,music、video或link，不填默认为link
+                      dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                      success: function () {
+                        // 用户确认分享后执行的回调函数
+                      },
+                      cancel: function () {
+                        // 用户取消分享后执行的回调函数
+                      }
+                    })
+                  })
                 },
                 error: function () {
                 }
@@ -476,7 +513,7 @@ export default {
                 default:
                   break
               }
-              alert('提交成功！分享到朋友圈试试')
+              alert('提交成功！分享到朋友圈试试，人多力量大，发到朋友圈帮你找找那些隐藏对手吧')
             },
             error: function () {
             }
@@ -490,6 +527,56 @@ export default {
   mounted () {
     this.WEIXINHEAD = window.WEIXINHEAD ? window.WEIXINHEAD : ''
     this.WEIXINNAME = window.WEIXINNAME ? window.WEIXINNAME : ''
+    this.WEIXINCODE = window.WEIXINID ? window.WEIXINID : ''
+    if (!isEmpty(this.WEIXINCODE)) {
+      let url = 'http://locateu.cn/tool/sql.class.php?mod=getUserInfo'
+      let param = {
+        openid: this.WEIXINCODE
+      }
+      let that = this
+      this.showLoading = true
+      ajax({
+        type: 'post',
+        url: url,
+        dataType: 'json',
+        data: param,
+        success: function (data) {
+          if (isEmpty(data)) {
+            that.showLoading = false
+            return
+          }
+          that.showLoading = false
+          let info = data[0]
+          that.isBack = true
+          that.collageName = info.colleges
+          that.chosedSchool.schoolname = info.applyschoolname
+          that.chosedSchool.schoolcode = info.applyschoolcode
+          that.name = info.mailname
+          that.mailProvince = info.mailprovince
+          that.mailCity = info.mailcity
+          that.mailArea = info.mailarea
+          that.address = info.mailaddress
+          that.tel = info.mailphone
+          that.chosedMajor = info.majorcode
+          that.major = info.majortype
+          that.province = info.applyprovince
+          that.chosedSchool = {
+            id: info.applyschoolid,
+            schoolname: info.applyschoolname,
+            schoolcode: info.applyschoolcode,
+            majorcode1: info.applyschoolmajorcode1,
+            majorcode2: info.applyschoolmajorcode2,
+            majorcode3: info.applyschoolmajorcode3,
+            province: info.applyschoolprovince
+          }
+          setTimeout(() => {
+            that.isSelect = true
+          }, 0)
+        },
+        error: function () {
+        }
+      })
+    }
   }
 }
 </script>
@@ -588,6 +675,7 @@ input, select {
   border-radius: 5px;
   width: 38%;
   display: inline-block;
+  margin-bottom: 30px;
 }
 .submit-disable {
   background-color: rgb(0,0,0,.6);
