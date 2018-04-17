@@ -316,7 +316,7 @@ export default {
   },
   methods: {
     goSchool: function () {
-      window.location.href = 'https://jinshuju.net/f/u3PbEt'
+      window.location.href = 'https://jinshuju.net/f/ULUKYB'
     },
     originClick: function (col) {
       this.collageName = col.schoolname
@@ -437,11 +437,26 @@ export default {
                 that.showLoading = false
                 return
               }
+              let url1 = `http://locateu.cn/tool/resMsg.php?phone=${that.tel}&word_1=${that.chosedSchool.schoolname}&word_2=${that.chosedMajor}`
+              let data2 = {
+                phone: this.tel
+              }
+              ajax({
+                type: 'get',
+                url: url1,
+                dataType: 'json',
+                data: data2,
+                success: function () {
+                },
+                error: function () {
+                }
+              })
               let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
               let param = {
                 colleges: that.collageName,
                 applyschoolname: that.chosedSchool.schoolname,
-                majorcode: that.chosedMajor
+                majorcode: that.chosedMajor,
+                majortype: that.major
               }
               that.showLoading = true
               ajax({
