@@ -5,18 +5,18 @@
         <p>官方信息 查询系统</p>
         <div class="phone-block">
             <p class="black-title"> <span>请输入手机号</span> </p>
-            <p>
-                <input type="tel" name="" id="">
-                <span>获取验证码</span>
-            </p>
-            <p>
-                <input type="tel">
-            </p>
+            <div>
+                <input type="number" name="" id="" class="phone" v-model="tel">
+                <span class="sendMsg" @click="onMsgSend">{{phoneSendMsg}}</span>
+            </div>
+            <div>
+                <input type="number" name="" id="" v-model="valid">
+            </div>
         </div>
         <img id="phone-logo" src="../assets/logo.png" alt="">
         <p>风景园林/建筑学/城乡规划</p>
         <p class="login">
-            <span>登陆</span>
+            <span @click="onLogin">登陆</span>
         </p>
       </div>
       <div class="chose-school">
@@ -50,12 +50,121 @@
 
 <script>
 import 'vue-loaders/dist/vue-loaders.css'
+function ajax () {
+  var ajaxData = {
+    type: arguments[0].type || 'GET',
+    url: arguments[0].url || '',
+    async: arguments[0].async || 'true',
+    data: arguments[0].data || null,
+    dataType: arguments[0].dataType || 'text',
+    contentType: arguments[0].contentType || 'application/x-www-form-urlencoded',
+    beforeSend: arguments[0].beforeSend || function () {},
+    success: arguments[0].success || function () {},
+    error: arguments[0].error || function () {}
+  }
+  ajaxData.beforeSend()
+  var xhr = createxmlHttpRequest()
+  xhr.responseType = ajaxData.dataType
+  xhr.open(ajaxData.type, ajaxData.url, ajaxData.async)
+  xhr.setRequestHeader('Content-Type', ajaxData.contentType)
+  xhr.send(convertData(ajaxData.data))
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        ajaxData.success(xhr.response)
+      } else {
+        ajaxData.error()
+      }
+    }
+  }
+}
+
+function createxmlHttpRequest () {
+  if (window.ActiveXObject) {
+    // eslint-disable-next-line
+    return new ActiveXObject('Microsoft.XMLHTTP')
+  } else if (window.XMLHttpRequest) {
+    return new XMLHttpRequest()
+  }
+}
+
+function convertData (data) {
+  if (typeof data === 'object') {
+    var convertResult = ''
+    for (var c in data) {
+      convertResult += c + '=' + data[c] + '&'
+    }
+    convertResult = convertResult.substring(0, convertResult.length - 1)
+    return convertResult
+  } else {
+    return data
+  }
+}
 export default {
   name: 'index',
   components: {
   },
   data () {
     return {
+      phoneSendMsg: '发送验证码',
+      tel: '',
+      valid: '',
+      validBackCode: '',
+      validBackPhone: ''
+    }
+  },
+  methods: {
+    onMsgSend: function () {
+      let countdown = 60
+      function settime (_this) {
+        if (countdown === 0) {
+          _this.phoneSendMsg = '发送验证码'
+        } else {
+          countdown--
+          _this.phoneSendMsg = `等待${countdown}秒`
+          setTimeout(function () {
+            settime(_this)
+          }, 1000)
+        }
+      }
+      if (this.tel !== '') {
+        if (this.phoneSendMsg === '发送验证码') {
+          let _this = this
+          settime(_this)
+          let url = `http://locateu.cn/tool/checkNumber.php?phone=${this.tel}`
+          // let url = `http://suntingyao.com/tool/checkNumber.php?phone=${this.tel}`
+          let data = {
+            phone: this.tel
+          }
+          this.showLoading = true
+          ajax({
+            type: 'get',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+              if (data.state === 'success') {
+                _this.validBackCode = data.num
+                _this.validBackPhone = data.phone
+              }
+            },
+            error: function () {
+            }
+          })
+        }
+      } else {
+        alert('请填写手机号')
+      }
+    },
+    onLogin: function () {
+      let tel = this.tel
+      let valid = this.valid
+    //   if (tel === this.validBackCode && valid === this.validBackCode) {
+      if (1) {
+        this.$router.push('/school?phone=' + tel)
+      } else {
+        alert('手机号和验证码不正确')
+      }
     }
   }
 }
