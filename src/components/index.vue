@@ -2,19 +2,19 @@
   <div>
       <div class="homepage">
         <p class="black-title"> <span>欢迎使用LOCA全国高校研究生入学考试</span> </p>
-        <p>官方信息 查询系统</p>
+        <p class="des">官方信息 查询系统</p>
         <div class="phone-block">
             <p class="black-title"> <span>请输入手机号</span> </p>
-            <div>
+            <div class="input-body">
                 <input type="number" name="" id="" class="phone" v-model="tel">
                 <span class="sendMsg" @click="onMsgSend">{{phoneSendMsg}}</span>
             </div>
-            <div>
+            <div class="input-body">
                 <input type="number" name="" id="" v-model="valid">
             </div>
         </div>
         <img id="phone-logo" src="../assets/logo.png" alt="">
-        <p>风景园林/建筑学/城乡规划</p>
+        <p style="font-size: 14px;">风景园林/建筑学/城乡规划</p>
         <p class="login">
             <span @click="onLogin">登陆</span>
         </p>
@@ -24,11 +24,15 @@
       </div>
   </div>
 </template>
-<style>
+<style scoped>
+p {
+  margin: 5px 0;
+}
 .homepage {
     width: 100%;
     height: 100%;
     text-align: center;
+    padding-top: 140px;
 }
 .black-title span{
     background: black;
@@ -40,11 +44,43 @@
     width: 200px;
     height: 100px;
 }
+.login {
+  margin: 40px;
+}
 .login span {
     background: black;
     color: white;
     padding: 10px 60px;
     border-radius: 10px;
+}
+.phone-block {
+  width: 60%;
+  margin: 40px auto;
+  font-size: 14px;
+}
+.phone-block .black-title {
+  text-align: left;
+}
+.input-body {
+  border: black solid 1px;
+  border-radius: 15px;
+  margin: 10px 0;
+  height: 30px;
+  line-height: 30px;
+}
+.input-body .phone {
+  width: 50%;
+}
+.input-body input {
+  border: none;
+}
+.input-body .sendMsg {
+  background: black;
+  color: white;
+  border-radius: 15px;
+  padding: 3px 8px;
+  height: 25px;
+  line-height: 25px;
 }
 </style>
 
@@ -159,8 +195,8 @@ export default {
     onLogin: function () {
       let tel = this.tel
       let valid = this.valid
-    //   if (tel === this.validBackCode && valid === this.validBackCode) {
-      if (1) {
+      if (tel === this.validBackPhone && valid === this.validBackCode && tel !== '') {
+      // if (1) {
         this.$router.push('/school?phone=' + tel)
       } else {
         alert('手机号和验证码不正确')

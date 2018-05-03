@@ -1,69 +1,95 @@
 <template>
   <div>
-      <div class="homepage">
+      <div class="logo-block">
         <img id="phone-logo" src="../assets/logo.png" alt="">
-        <p class="black-title"> <span>欢迎使用LOCA全国高校研究生入学考试</span> </p>
-        <p>官方信息 查询系统</p>
-      </div>
-      <div>
-        <img :src="WEIXINHEAD" alt="" class="head">
-      </div>
-      <div>
-        <p>选择你的本科在读高校</p>
-        <div>
-          <input type="text" v-model="collageName">
+        <div class="logo-des">
+          <p class="black-title"> <span>欢迎使用LOCA全国高校研究生入学考试</span> </p>
+          <p>官方信息 查询系统</p>
         </div>
-        <div class="origin-body" v-if="originColleges.length > 0" v-show="!isSelect">
-            <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
-              {{col.schoolname}}
-            </p>
+      </div>
+      <div class="school-body">
+        <div>
+          <img :src="WEIXINHEAD" alt="" class="head">
+        </div>
+        <div style="margin-top: 30px;">
+          <p>选择你的本科在读高校</p>
+          <div>
+            <input type="text" v-model="collageName">
           </div>
-      </div>
-      <div>
-        <p>请选择报考专业类别</p>
-        <div>
-          <select name="" id="" v-model="major">
-            <option value="">请选择</option>
-            <option value="cityplanning">城市规划</option>
-            <option value="architecture">建筑学</option>
-            <option value="landscape">风景园林</option>
-          </select>
+          <div class="origin-body" v-if="originColleges.length > 0" v-show="!isSelect">
+              <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
+                {{col.schoolname}}
+              </p>
+            </div>
         </div>
-      </div>
-      <div>
-        <p>请选择报考专业类别</p>
         <div>
-          <input type="date" v-model="date">
+          <p>请选择报考专业类别</p>
+          <div>
+            <select name="" id="" v-model="major">
+              <option value="">请选择</option>
+              <option value="cityplanning">城市规划</option>
+              <option value="architecture">建筑学</option>
+              <option value="landscape">风景园林</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div>
-        <p>是否愿意接收我们最新收集的考试信息</p>
-        <p>
-          <span>愿意</span>
-          <span>不愿意</span>
-        </p>
-      </div>
-      <div>
-        <span>还没选好报考专业及院系</span>
-        <span @click="submit">已经有自己想报考的院系</span>
+        <div>
+          <p>请选择报考专业类别</p>
+          <div>
+            <input type="date" v-model="date">
+          </div>
+        </div>
+        <div style="margin-top: 80px;">
+          <p>是否愿意接收我们最新收集的考试信息</p>
+          <p>
+            <span @click="agree = true"> <span :class="agree ? 'radio click' : 'radio'"> </span> 愿意</span>
+            <span @click="agree = false"> <span :class="!agree ? 'radio click' : 'radio'"> </span>不愿意</span>
+          </p>
+        </div>
+        <div style="font-size: 14px;margin-top: 50px;">
+          <span class="button" @click="school">还没选好报考专业及院系</span>
+          <span class="button" @click="submit">已经有自己想报考的院系</span>
+        </div>
       </div>
   </div>
 </template>
 <style>
-.homepage {
-    width: 100%;
-    height: 100%;
-    text-align: center;
+.logo-block {
+  font-size: 12px;
+  padding: 10px 0;
+  overflow: hidden;
+}
+.logo-block img {
+  width: 81px;
+  height: 38px;
+  display: block;
+  float: left;
+}
+.logo-des {
+  float: left;
+}
+.logo-block p {
+  margin: 5px 0;
+}
+.school-body {
+  text-align: center;
+  padding: 20px;
+}
+.school-body p {
+  margin: 5px 0;
+}
+.school-body input, .school-body select {
+  border: black solid 1px;
+  border-radius: 10px;
+  width: 200px;
+  height: 30px;
+  line-height: 30px;
 }
 .black-title span{
     background: black;
     color: white;
     border-radius: 10px;
     padding: 2px 4px;
-}
-#phone-logo {
-    width: 200px;
-    height: 100px;
 }
 .login span {
     background: black;
@@ -72,8 +98,26 @@
     border-radius: 10px;
 }
 .head {
-  width: 45px;
-  height: 45px;
+  width: 80px;
+  height: 80px;
+  border: black solid 1px;
+  border-radius: 50%;
+}
+.button {
+  background: black;
+  color: white;
+  padding: 15px 5px;
+  border-radius: 10px;
+}
+.radio {
+  display: inline-block;
+  width: 25px;
+  height: 15px;
+  border-radius: 10px;
+  border: black solid 1px;
+}
+.radio.click {
+  background: black
 }
 </style>
 
@@ -154,7 +198,8 @@ export default {
       sendColleges: false,
       date: '',
       isBack: false,
-      tel: ''
+      tel: '',
+      agree: true
     }
   },
   watch: {
@@ -185,14 +230,17 @@ export default {
     }
   },
   methods: {
+    school: function () {
+      window.location.href = 'https://jinshuju.net/f/ULUKYB'
+    },
     originClick: function (col) {
       this.collageName = col.schoolname
       this.collegesTemp = col.schoolname
       this.isSelect = true
     },
     submit: function () {
-      let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailprovince', 'mailcity', 'mailarea', 'mailaddress', 'mailphone', 'majorcode', 'majortype', 'applyprovince', 'applyschoolid', 'applyschoolmajorcode1', 'applyschoolmajorcode2', 'applyschoolmajorcode3', 'applyschoolprovince']
-      let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, '', '', '', '', '', '', '', '', '', '', this.major, '', '', '', '', '', '']
+      let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailprovince', 'mailcity', 'mailarea', 'mailaddress', 'mailphone', 'majorcode', 'majortype', 'applyprovince', 'applyschoolid', 'applyschoolmajorcode1', 'applyschoolmajorcode2', 'applyschoolmajorcode3', 'applyschoolprovince', 'date', 'agreesendmsg']
+      let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, '', '', '', '', '', '', '', '', '', '', this.major, '', '', '', '', '', '', this.date, this.agree]
       let url = ''
       let data = {}
       let that = this
