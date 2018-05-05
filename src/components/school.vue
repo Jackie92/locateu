@@ -16,7 +16,7 @@
           <div>
             <input type="text" v-model="collageName">
           </div>
-          <div class="origin-body" v-if="originColleges.length > 0" v-show="!isSelect">
+          <div class="origin-body" v-if="originColleges.length != 0" v-show="!isSelect">
               <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
                 {{col.schoolname}}
               </p>
@@ -34,12 +34,19 @@
           </div>
         </div>
         <div>
-          <p>请选择报考专业类别</p>
+          <p>请选择你的预计考研日期</p>
           <div>
-            <input type="date" v-model="date">
+            <select name="" id="" v-model="date">
+              <option value="">请选择</option>
+              <option value="2018-12">2018-12</option>
+              <option value="2019-12">2019-12</option>
+              <option value="2020-12">2020-12</option>
+              <option value="2021-12">2021-12</option>
+              <option value="2022-12">2022-12</option>
+            </select>
           </div>
         </div>
-        <div style="margin-top: 80px;">
+        <div style="margin-top: 60px;font-size: 14px;">
           <p>是否愿意接收我们最新收集的考试信息</p>
           <p>
             <span @click="agree = true"> <span :class="agree ? 'radio click' : 'radio'"> </span> 愿意</span>
@@ -47,13 +54,16 @@
           </p>
         </div>
         <div style="font-size: 14px;margin-top: 50px;">
-          <span class="button" @click="school">还没选好报考专业及院系</span>
+          <span class="button" @click="school">还没选好报考院系</span>
           <span class="button" @click="submit">已经有自己想报考的院系</span>
         </div>
       </div>
   </div>
 </template>
 <style>
+input, select {
+  text-align: center;
+}
 .logo-block {
   font-size: 12px;
   padding: 10px 0;
@@ -70,6 +80,17 @@
 }
 .logo-block p {
   margin: 5px 0;
+}
+.origin-body {
+    position: absolute;
+    width: 200px;
+    left: 50%;
+    margin-left: -100px;
+    background: white;
+    border: black solid 1px;
+    border-radius: 9px;
+    margin-top: 1px;
+    font-size: 14px;
 }
 .school-body {
   text-align: center;
@@ -115,6 +136,8 @@
   height: 15px;
   border-radius: 10px;
   border: black solid 1px;
+  position: relative;
+  top: 3px;
 }
 .radio.click {
   background: black
@@ -175,15 +198,6 @@ function convertData (data) {
   }
 }
 
-function getUrlParam (name) {
-  let reg = new RegExp(name + '=([^&]*)(&|$)') // 构造一个含有目标参数的正则表达式对象
-  let r = window.location.href.substr(1).match(reg) // 匹配目标参数
-  if (r != null) {
-    return unescape(r[1]) // 返回参数值
-  } else {
-    return null
-  }
-}
 export default {
   name: 'index',
   components: {
@@ -193,12 +207,11 @@ export default {
       WEIXINHEAD: '',
       collageName: '',
       isSelect: false,
-      originColleges: {},
+      originColleges: [],
       major: '',
       sendColleges: false,
       date: '',
       isBack: false,
-      tel: '',
       agree: true
     }
   },
@@ -239,8 +252,8 @@ export default {
       this.isSelect = true
     },
     submit: function () {
-      let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailprovince', 'mailcity', 'mailarea', 'mailaddress', 'mailphone', 'majorcode', 'majortype', 'applyprovince', 'applyschoolid', 'applyschoolmajorcode1', 'applyschoolmajorcode2', 'applyschoolmajorcode3', 'applyschoolprovince', 'date', 'agreesendmsg']
-      let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, '', '', '', '', '', '', '', '', '', '', this.major, '', '', '', '', '', '', this.date, this.agree]
+      let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'majortype', 'date', 'agreesendmsg']
+      let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.major, this.date, this.agree]
       let url = ''
       let data = {}
       let that = this
@@ -278,7 +291,6 @@ export default {
     }
   },
   mounted () {
-    this.tel = getUrlParam('phone')
     this.WEIXINHEAD = window.WEIXINHEAD ? window.WEIXINHEAD : ''
     this.WEIXINNAME = window.WEIXINNAME ? window.WEIXINNAME : ''
     this.WEIXINCODE = window.WEIXINID ? window.WEIXINID : ''

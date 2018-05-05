@@ -86,6 +86,7 @@ p {
 
 <script>
 import 'vue-loaders/dist/vue-loaders.css'
+import { isEmpty } from 'lodash'
 function ajax () {
   var ajaxData = {
     type: arguments[0].type || 'GET',
@@ -196,11 +197,99 @@ export default {
       let tel = this.tel
       let valid = this.valid
       if (tel === this.validBackPhone && valid === this.validBackCode && tel !== '') {
-      // if (1) {
-        this.$router.push('/school?phone=' + tel)
+        this.submit()
       } else {
         alert('手机号和验证码不正确')
       }
+    },
+    submit: function () {
+      let rowAry = ['userweixinname', 'userweixincode', 'mailphone']
+      let infoAry = [this.WEIXINNAME, this.WEIXINCODE, this.tel]
+      let url = ''
+      let data = {}
+      let that = this
+      // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
+      if (this.isBack) {
+        url = 'http://locateu.cn/tool/sql.class.php?mod=update_user'
+        data = {
+          rowAry: rowAry,
+          infoAry: infoAry,
+          openid: this.WEIXINCODE
+        }
+      } else {
+        url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+        data = {
+          rowAry: rowAry,
+          infoAry: infoAry
+        }
+      }
+      this.disabled = true
+      ajax({
+        type: 'post',
+        url: url,
+        dataType: 'json',
+        data: data,
+        success: function (data) {
+          if (data.msg === 'error') {
+            alert('提交失败！稍后来试试把')
+          } else {
+            that.$router.push(`/school`)
+          }
+        },
+        error: function () {
+        }
+      })
+    }
+  },
+  mounted () {
+    this.WEIXINHEAD = window.WEIXINHEAD ? window.WEIXINHEAD : ''
+    this.WEIXINNAME = window.WEIXINNAME ? window.WEIXINNAME : ''
+    this.WEIXINCODE = window.WEIXINID ? window.WEIXINID : ''
+    if (!isEmpty(this.WEIXINCODE)) {
+      let url = 'http://locateu.cn/tool/sql.class.php?mod=getUserInfo'
+      let param = {
+        openid: this.WEIXINCODE
+      }
+      let that = this
+      ajax({
+        type: 'post',
+        url: url,
+        dataType: 'json',
+        data: param,
+        success: function (data) {
+          if (isEmpty(data)) {
+            return
+          }
+          let info = data[0]
+          that.isBack = true
+          that.collageName = info.colleges
+          that.chosedSchool.schoolname = info.applyschoolname
+          that.chosedSchool.schoolcode = info.applyschoolcode
+          that.name = info.mailname
+          that.mailProvince = info.mailprovince
+          that.mailCity = info.mailcity
+          that.mailArea = info.mailarea
+          that.address = info.mailaddress
+          that.tel = info.mailphone
+          that.chosedMajor = info.majorcode
+          that.major = info.majortype
+          that.province = info.applyprovince
+          that.chosedSchool = {
+            id: info.applyschoolid,
+            schoolname: info.applyschoolname,
+            schoolcode: info.applyschoolcode,
+            majorcode1: info.applyschoolmajorcode1,
+            majorcode2: info.applyschoolmajorcode2,
+            majorcode3: info.applyschoolmajorcode3,
+            province: info.applyschoolprovince
+          }
+          setTimeout(() => {
+            that.isSelect = true
+          }, 0)
+        },
+        error: function () {
+        }
+      })
     }
   }
 }
