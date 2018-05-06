@@ -1,68 +1,84 @@
 <template>
-  <div>
-      <div class="logo-block">
-        <img id="phone-logo" src="../assets/logo.png" alt="">
-        <div class="logo-des">
-          <p class="black-title"> <span>欢迎使用LOCA全国高校研究生入学考试</span> </p>
-          <p>官方信息 查询系统</p>
+  <div class="body">
+    <div class="loading" v-if="showLoading">
+      <pacman-loader color="lightblue"></pacman-loader>
+    </div>
+    <div class="logo-block">
+      <img id="phone-logo" src="../assets/logo.png" alt="">
+      <div class="logo-des">
+        <p class="black-title"> <span>欢迎使用LOCA全国高校研究生入学考试</span> </p>
+        <p>官方信息 查询系统</p>
+      </div>
+    </div>
+    <div class="school-body">
+      <div>
+        <img :src="WEIXINHEAD" alt="" class="head">
+      </div>
+      <div style="margin-top: 30px;">
+        <p>选择你的本科在读高校</p>
+        <div>
+          <input type="text" v-model="collageName">
+        </div>
+        <div class="origin-body" v-if="originColleges" v-show="!isSelect">
+            <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
+              {{col.schoolname}}
+            </p>
+          </div>
+      </div>
+      <div>
+        <p>请选择报考专业类别</p>
+        <div>
+          <select name="" id="" v-model="major">
+            <option value="">请选择</option>
+            <option value="cityplanning">城市规划</option>
+            <option value="architecture">建筑学</option>
+            <option value="landscape">风景园林</option>
+          </select>
         </div>
       </div>
-      <div class="school-body">
+      <div>
+        <p>请选择你的预计考研日期</p>
         <div>
-          <img :src="WEIXINHEAD" alt="" class="head">
-        </div>
-        <div style="margin-top: 30px;">
-          <p>选择你的本科在读高校</p>
-          <div>
-            <input type="text" v-model="collageName">
-          </div>
-          <div class="origin-body" v-if="originColleges.length != 0" v-show="!isSelect">
-              <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
-                {{col.schoolname}}
-              </p>
-            </div>
-        </div>
-        <div>
-          <p>请选择报考专业类别</p>
-          <div>
-            <select name="" id="" v-model="major">
-              <option value="">请选择</option>
-              <option value="cityplanning">城市规划</option>
-              <option value="architecture">建筑学</option>
-              <option value="landscape">风景园林</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <p>请选择你的预计考研日期</p>
-          <div>
-            <select name="" id="" v-model="date">
-              <option value="">请选择</option>
-              <option value="2018-12">2018-12</option>
-              <option value="2019-12">2019-12</option>
-              <option value="2020-12">2020-12</option>
-              <option value="2021-12">2021-12</option>
-              <option value="2022-12">2022-12</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-top: 60px;font-size: 14px;">
-          <p>是否愿意接收我们最新收集的考试信息</p>
-          <p>
-            <span @click="agree = true"> <span :class="agree ? 'radio click' : 'radio'"> </span> 愿意</span>
-            <span @click="agree = false"> <span :class="!agree ? 'radio click' : 'radio'"> </span>不愿意</span>
-          </p>
-        </div>
-        <div style="font-size: 14px;margin-top: 50px;">
-          <span class="button" @click="school">还没选好报考院系</span>
-          <span class="button" @click="submit">已经有自己想报考的院系</span>
+          <select name="" id="" v-model="date">
+            <option value="">请选择</option>
+            <option value="2018-12">2018-12</option>
+            <option value="2019-12">2019-12</option>
+            <option value="2020-12">2020-12</option>
+            <option value="2021-12">2021-12</option>
+            <option value="2022-12">2022-12</option>
+          </select>
         </div>
       </div>
+      <div style="margin-top: 60px;font-size: 14px;">
+        <p>是否愿意接收我们最新收集的考试信息</p>
+        <p>
+          <span @click="agree = true"> <span :class="agree ? 'radio click' : 'radio'"> </span> 愿意</span>
+          <span @click="agree = false"> <span :class="!agree ? 'radio click' : 'radio'"> </span>不愿意</span>
+        </p>
+      </div>
+      <div style="font-size: 14px;margin-top: 50px;">
+        <span class="button" @click="school">还没选好报考院系</span>
+        <span class="button" @click="submit">已经有自己想报考的院系</span>
+      </div>
+    </div>
   </div>
 </template>
-<style>
+<style scoped>
+.body {
+  height: 100%;
+  overflow-y: scroll;
+}
 input, select {
   text-align: center;
+}
+.loading {
+  position: fixed;
+  z-index: 1;
+  background: transparent;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  padding-top: 70%;
 }
 .logo-block {
   font-size: 12px;
@@ -147,6 +163,7 @@ input, select {
 <script>
 import 'vue-loaders/dist/vue-loaders.css'
 import { isEmpty } from 'lodash'
+import { PacmanLoader } from 'vue-loaders'
 function ajax () {
   var ajaxData = {
     type: arguments[0].type || 'GET',
@@ -201,6 +218,7 @@ function convertData (data) {
 export default {
   name: 'index',
   components: {
+    'pacman-loader': PacmanLoader
   },
   data () {
     return {
@@ -212,7 +230,8 @@ export default {
       sendColleges: false,
       date: '',
       isBack: false,
-      agree: true
+      agree: true,
+      showLoading: false
     }
   },
   watch: {
@@ -220,6 +239,7 @@ export default {
       if (val !== this.collegesTemp) {
         this.isSelect = false
       }
+      console.log(val.length)
       if (val.length > 3 && !this.sendColleges) {
         let url = 'http://locateu.cn/tool/sql.class.php?mod=getColleges'
         let param = {
@@ -227,6 +247,7 @@ export default {
         }
         let that = this
         this.sendColleges = true
+        this.showLoading = true
         ajax({
           type: 'post',
           url: url,
@@ -235,8 +256,10 @@ export default {
           success: function (data) {
             that.sendColleges = false
             that.originColleges = data
+            that.showLoading = false
           },
           error: function () {
+            that.showLoading = false
           }
         })
       }
@@ -263,7 +286,7 @@ export default {
         data = {
           rowAry: rowAry,
           infoAry: infoAry,
-          openid: this.WEIXINCODE
+          openid: window.WEIXINID
         }
       } else {
         url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
@@ -273,12 +296,14 @@ export default {
         }
       }
       this.disabled = true
+      this.showLoading = true
       ajax({
         type: 'post',
         url: url,
         dataType: 'json',
         data: data,
         success: function (data) {
+          that.showLoading = false
           if (data.msg === 'error') {
             alert('提交失败！稍后来试试把')
           } else {
@@ -286,6 +311,7 @@ export default {
           }
         },
         error: function () {
+          that.showLoading = false
         }
       })
     }
@@ -294,49 +320,30 @@ export default {
     this.WEIXINHEAD = window.WEIXINHEAD ? window.WEIXINHEAD : ''
     this.WEIXINNAME = window.WEIXINNAME ? window.WEIXINNAME : ''
     this.WEIXINCODE = window.WEIXINID ? window.WEIXINID : ''
-    if (!isEmpty(this.WEIXINCODE)) {
+    if (!isEmpty(window.WEIXINID)) {
       let url = 'http://locateu.cn/tool/sql.class.php?mod=getUserInfo'
       let param = {
-        openid: this.WEIXINCODE
+        openid: window.WEIXINID
       }
       let that = this
+      this.showLoading = true
       ajax({
         type: 'post',
         url: url,
         dataType: 'json',
         data: param,
         success: function (data) {
+          that.showLoading = false
           if (isEmpty(data)) {
             return
           }
-          let info = data[0]
           that.isBack = true
-          that.collageName = info.colleges
-          that.chosedSchool.schoolname = info.applyschoolname
-          that.chosedSchool.schoolcode = info.applyschoolcode
-          that.name = info.mailname
-          that.mailProvince = info.mailprovince
-          that.mailCity = info.mailcity
-          that.mailArea = info.mailarea
-          that.address = info.mailaddress
-          that.tel = info.mailphone
-          that.chosedMajor = info.majorcode
-          that.major = info.majortype
-          that.province = info.applyprovince
-          that.chosedSchool = {
-            id: info.applyschoolid,
-            schoolname: info.applyschoolname,
-            schoolcode: info.applyschoolcode,
-            majorcode1: info.applyschoolmajorcode1,
-            majorcode2: info.applyschoolmajorcode2,
-            majorcode3: info.applyschoolmajorcode3,
-            province: info.applyschoolprovince
-          }
           setTimeout(() => {
-            that.isSelect = true
+            that.isSelect = false
           }, 0)
         },
         error: function () {
+          that.showLoading = false
         }
       })
     }

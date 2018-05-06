@@ -13,7 +13,7 @@ export default {
 
 <style>
 html, body, #app {
-  min-height: 100%;
+  height: 100%;
 }
 body {
   /* background: url("./assets/bg.png") top center no-repeat; */

@@ -11,7 +11,7 @@
           <span class="fa fa-bank"></span>
           <input type="text" v-model="collageName">
         </div>
-        <div class="origin-body" v-if="originColleges.length > 0" v-show="!isSelect">
+        <div class="origin-body" v-if="originColleges" v-show="!isSelect">
             <p v-for="col in originColleges" v-bind:key="col.no" @click="originClick(col)">
               {{col.schoolname}}
             </p>
@@ -132,21 +132,21 @@
         <p>请填写手机号码<span class="red_star">*</span></p>
         <div :class="[!isEmpty(tel) || !hasClickSub ? 'enter' : 'enter disabled']">
           <input type="number" name="" id="" class="phone" v-model="tel">
-          <span class="sendMsg" @click="onMsgSend">{{phoneSendMsg}}</span>
+          <!-- <span class="sendMsg" @click="onMsgSend">{{phoneSendMsg}}</span> -->
         </div>
         <p v-if="isEmpty(tel) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写手机号</p>
       </div>
-      <div class="list">
+      <!-- <div class="list"> -->
         <!-- <p>请填写验证码<span class="red_star">*</span></p> -->
-        <div :class="[!isEmpty(valid) || !hasClickSub ? 'enter' : 'enter disabled']">
+        <!-- <div :class="[!isEmpty(valid) || !hasClickSub ? 'enter' : 'enter disabled']">
           <input type="number" name="" id="" v-model="valid" style="width:63%;">
           <span class="sendMsg">填写验证码</span>
         </div>
         <p v-if="isEmpty(valid) && hasClickSub" class="hint"><i class="fa fa-exclamation-circle"></i> 请填写验证码</p>
-      </div>
+      </div> -->
       <div class="list">
         <div :class="[
-          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(chosedMajor) && !isEmpty(name) && !isEmpty(tel) && !isEmpty(valid)
+          !isEmpty(collageName) && !isEmpty(major) && !isEmpty(province) && !isEmpty(chosedSchool) && !isEmpty(chosedMajor) && !isEmpty(name) && !isEmpty(tel)
           ?
           'submit'
           :
@@ -404,138 +404,143 @@ export default {
       }
       let that = this
       if (document.querySelector('.submit').className.indexOf('submit-disable') < 0) {
-        if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
-          let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailprovince', 'mailcity', 'mailarea', 'mailaddress', 'mailphone', 'majorcode', 'majortype', 'applyprovince', 'applyschoolid', 'applyschoolmajorcode1', 'applyschoolmajorcode2', 'applyschoolmajorcode3', 'applyschoolprovince']
-          let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, '', this.mailProvince, this.mailCity, this.mailArea, this.address, this.tel, this.chosedMajor, this.major, this.province, this.chosedSchool.id, this.chosedSchool.majorcode1, isEmpty(this.chosedSchool.majorcode2) ? '' : this.chosedSchool.majorcode2, isEmpty(this.chosedSchool.majorcode3) ? '' : this.chosedSchool.majorcode3, this.chosedSchool.province]
-          let url = ''
-          let data = {}
-          // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
-          if (this.isBack) {
-            url = 'http://locateu.cn/tool/sql.class.php?mod=update_user'
-            data = {
-              rowAry: rowAry,
-              infoAry: infoAry,
-              openid: this.WEIXINCODE
-            }
-          } else {
-            url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
-            data = {
-              rowAry: rowAry,
-              infoAry: infoAry
-            }
+        // if (this.validBackCode === this.valid && this.tel === this.validBackPhone) {
+        let rowAry = ['userweixinname', 'userweixincode', 'colleges', 'applyschoolname', 'applyschoolcode', 'mailname', 'email', 'mailprovince', 'mailcity', 'mailarea', 'mailaddress', 'mailphone', 'majorcode', 'majortype', 'applyprovince', 'applyschoolid', 'applyschoolmajorcode1', 'applyschoolmajorcode2', 'applyschoolmajorcode3', 'applyschoolprovince']
+        let infoAry = [window.WEIXINNAME, window.WEIXINID, this.collageName, this.chosedSchool.schoolname, this.chosedSchool.schoolcode, this.name, '', this.mailProvince, this.mailCity, this.mailArea, this.address, this.tel, this.chosedMajor, this.major, this.province, this.chosedSchool.id, this.chosedSchool.majorcode1, isEmpty(this.chosedSchool.majorcode2) ? '' : this.chosedSchool.majorcode2, isEmpty(this.chosedSchool.majorcode3) ? '' : this.chosedSchool.majorcode3, this.chosedSchool.province]
+        let url = ''
+        let data = {}
+        // let url = 'http://suntingyao.com/tool/sql.class.php?mod=save_user'
+        if (this.isBack) {
+          url = 'http://locateu.cn/tool/sql.class.php?mod=update_user'
+          data = {
+            rowAry: rowAry,
+            infoAry: infoAry,
+            openid: window.WEIXINID
           }
-          this.disabled = true
-          this.showLoading = true
-          ajax({
-            type: 'post',
-            url: url,
-            dataType: 'json',
-            data: data,
-            success: function (data) {
-              if (data.msg === 'error') {
-                alert('提交失败！稍后来试试把')
-                that.showLoading = false
-                return
-              }
-              let url1 = `http://locateu.cn/tool/resMsg.php?phone=${that.tel}&word_1=${that.chosedSchool.schoolname}&word_2=${that.chosedMajor}`
-              let data2 = {
-                phone: this.tel
-              }
-              ajax({
-                type: 'get',
-                url: url1,
-                dataType: 'json',
-                data: data2,
-                success: function () {
-                },
-                error: function () {
-                }
-              })
-              let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
-              let param = {
-                colleges: that.collageName,
-                applyschoolname: that.chosedSchool.schoolname,
-                majorcode: that.chosedMajor,
-                majortype: that.major
-              }
-              that.showLoading = true
-              ajax({
-                type: 'post',
-                url: url,
-                dataType: 'json',
-                data: param,
-                success: function (data) {
-                  window.NUMBER = data.people
-                  that.people = data.people
-                  that.sameMajor = data.samemajor
-                  that.sameSchool = data.sameschool
-                  that.showLoading = false
-                  // eslint-disable-next-line
-                  wx.ready(function () {
-                    // 自动执行的
-                    // eslint-disable-next-line
-                    wx.checkJsApi({
-                      jsApiList: [
-                        'onMenuShareTimeline',
-                        'onMenuShareAppMessage'
-                      ]
-                    })
-                    // eslint-disable-next-line
-                    wx.onMenuShareTimeline({
-                      title: 'LOCA已经帮我精确找到了' + window.NUMBER + '名报考一个专业的隐藏对手哦，快来看看你有多少隐藏对手吧',
-                      link: 'http://locateu.cn/',
-                      imgUrl: 'http://locateu.cn/logo.jpeg',
-                      trigger: function (res) {
-                      },
-                      success: function (res) {
-                      },
-                      cancel: function (res) {
-                      },
-                      fail: function (res) {
-
-                      }
-                    })
-                    // eslint-disable-next-line
-                    wx.onMenuShareAppMessage({
-                      title: 'LOCA已经帮我精确找到了' + window.NUMBER + '名报考一个专业的隐藏对手哦，快来看看你有多少隐藏对手吧', // 分享标题
-                      desc: '我已经悄悄在这里看到了多少名考研对手，你想知道你的吗？', // 分享描述
-                      link: 'http://locateu.cn/', // 分享链接，该链接域名必须与当前企业的可信域名一致
-                      imgUrl: 'http://locateu.cn/logo.jpeg', // 分享图标
-                      type: 'link', // 分享类型,music、video或link，不填默认为link
-                      dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
-                      success: function () {
-                        // 用户确认分享后执行的回调函数
-                      },
-                      cancel: function () {
-                        // 用户取消分享后执行的回调函数
-                      }
-                    })
-                  })
-                },
-                error: function () {
-                }
-              })
-              switch (that.major) {
-                case 'cityplanning':
-                  that.showCity = true
-                  break
-                case 'architecture':
-                  that.showArch = true
-                  break
-                case 'landscape':
-                  that.showLand = true
-                  break
-                default:
-                  break
-              }
-              alert('提交成功！分享到朋友圈试试，人多力量大，发到朋友圈帮你找找那些隐藏对手吧')
-            },
-            error: function () {
-            }
-          })
         } else {
-          alert('验证码错误或手机号码不匹配！')
+          url = 'http://locateu.cn/tool/sql.class.php?mod=save_user'
+          data = {
+            rowAry: rowAry,
+            infoAry: infoAry
+          }
         }
+        this.disabled = true
+        this.showLoading = true
+        ajax({
+          type: 'post',
+          url: url,
+          dataType: 'json',
+          data: data,
+          success: function (data) {
+            if (data.msg === 'error') {
+              alert('提交失败！稍后来试试把')
+              that.showLoading = false
+              return
+            }
+            let url1 = `http://locateu.cn/tool/resMsg.php?phone=${that.tel}&word_1=${that.chosedSchool.schoolname}&word_2=${that.chosedMajor}`
+            let data2 = {
+              phone: this.tel
+            }
+            ajax({
+              type: 'get',
+              url: url1,
+              dataType: 'json',
+              data: data2,
+              success: function () {
+              },
+              error: function () {
+              }
+            })
+            let url = 'http://locateu.cn/tool/sql.class.php?mod=getSum'
+            let param = {
+              colleges: that.collageName,
+              applyschoolname: that.chosedSchool.schoolname,
+              majorcode: that.chosedMajor,
+              majortype: that.major
+            }
+            that.showLoading = true
+            ajax({
+              type: 'post',
+              url: url,
+              dataType: 'json',
+              data: param,
+              success: function (data) {
+                window.NUMBER = data.people
+                that.people = data.people
+                that.sameMajor = data.samemajor
+                that.sameSchool = data.sameschool
+                that.showLoading = false
+                let oHead = document.getElementsByTagName('HEAD').item(0)
+                let oScript = document.createElement('script')
+                oScript.type = 'text/javascript'
+                oScript.src = 'http://res.wx.qq.com/open/js/jweixin-1.2.0.js'
+                oHead.appendChild(oScript)
+                // eslint-disable-next-line
+                wx.ready(function () {
+                  // 自动执行的
+                  // eslint-disable-next-line
+                  wx.checkJsApi({
+                    jsApiList: [
+                      'onMenuShareTimeline',
+                      'onMenuShareAppMessage'
+                    ]
+                  })
+                  // eslint-disable-next-line
+                  wx.onMenuShareTimeline({
+                    title: 'LOCA已经帮我精确找到了' + window.NUMBER + '名报考一个专业的隐藏对手哦，快来看看你有多少隐藏对手吧',
+                    link: 'http://locateu.cn/',
+                    imgUrl: 'http://locateu.cn/logo.jpeg',
+                    trigger: function (res) {
+                    },
+                    success: function (res) {
+                    },
+                    cancel: function (res) {
+                    },
+                    fail: function (res) {
+
+                    }
+                  })
+                  // eslint-disable-next-line
+                  wx.onMenuShareAppMessage({
+                    title: 'LOCA已经帮我精确找到了' + window.NUMBER + '名报考一个专业的隐藏对手哦，快来看看你有多少隐藏对手吧', // 分享标题
+                    desc: '我已经悄悄在这里看到了多少名考研对手，你想知道你的吗？', // 分享描述
+                    link: 'http://locateu.cn/', // 分享链接，该链接域名必须与当前企业的可信域名一致
+                    imgUrl: 'http://locateu.cn/logo.jpeg', // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户确认分享后执行的回调函数
+                    },
+                    cancel: function () {
+                      // 用户取消分享后执行的回调函数
+                    }
+                  })
+                })
+              },
+              error: function () {
+              }
+            })
+            switch (that.major) {
+              case 'cityplanning':
+                that.showCity = true
+                break
+              case 'architecture':
+                that.showArch = true
+                break
+              case 'landscape':
+                that.showLand = true
+                break
+              default:
+                break
+            }
+            alert('提交成功！分享到朋友圈试试，人多力量大，发到朋友圈帮你找找那些隐藏对手吧')
+          },
+          error: function () {
+          }
+        })
+        // } else {
+        //   alert('验证码错误或手机号码不匹配！')
+        // }
       }
     }
   },
@@ -543,10 +548,10 @@ export default {
     this.WEIXINHEAD = window.WEIXINHEAD ? window.WEIXINHEAD : ''
     this.WEIXINNAME = window.WEIXINNAME ? window.WEIXINNAME : ''
     this.WEIXINCODE = window.WEIXINID ? window.WEIXINID : ''
-    if (!isEmpty(this.WEIXINCODE)) {
+    if (!isEmpty(window.WEIXINID)) {
       let url = 'http://locateu.cn/tool/sql.class.php?mod=getUserInfo'
       let param = {
-        openid: this.WEIXINCODE
+        openid: window.WEIXINID
       }
       let that = this
       this.showLoading = true
